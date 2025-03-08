@@ -1,0 +1,93 @@
+# Technical Implementation Plan: Ne İzlesem? - Phase 1 (MVP)
+
+This plan outlines the steps to build the MVP of "Ne İzlesem?".
+
+1.  **Project Setup:**
+    *   [ ] Create a new Expo project: `npx create-expo-app --template blank-typescript`
+    *   [ ] Set up Expo Router: `npx expo install expo-router react-native-safe-area-context react-native-screens`
+    *   [ ] Install dependencies: `npx expo install react-native-paper axios react-query i18n-js @react-native-async-storage/async-storage @supabase/supabase-js`
+        *   `react-native-paper`: UI components.
+        *   `axios`: HTTP requests.
+        *   `react-query`: Data fetching, caching, and state management.
+        *   `i18n-js`: Localization.
+        *  `@react-native-async-storage/async-storage`: Local storage.
+        * `@supabase/supabase-js`: Supabase client (for future use).
+    *   [ ] Configure TypeScript.
+    *   [ ] Set up project structure (folders: `screens`, `components`, `services`, `hooks`, `context`, `utils`, `types`, `constants`, `localization`).
+    *   [ ] Set up environment variables (for TMDB API key).
+
+2.  **TMDB API Integration (`services/tmdbService.ts`):**
+    *   [ ] Create `tmdbService.ts`.
+    *   [ ] Implement API functions using `axios` and `react-query`:
+        *   [ ] `getPopularMovies(page: number, with_watch_providers: string)`:  Fetch popular movies.
+        *   [ ] `getPopularTVShows(page: number, with_watch_providers: string)`: Fetch popular TV shows.
+        *   [ ] `getMovieDetails(id: number)`: Fetch details for a movie.
+        *   [ ] `getTVShowDetails(id: number)`: Fetch details for a TV show.
+        *   [ ] `searchMedia(query: string, page: number)`: Search for movies/TV shows.
+        *   [ ] `getWatchProviders()`:  Get available watch providers in Turkey (TR region).  Store the results for later use.
+    *   [ ] Implement error handling and loading states using `react-query` features.
+    *   [ ] Implement caching of API responses using `react-query`.
+    *   [ ] Construct API URLs using base URL (`https://api.themoviedb.org/3`) and appropriate endpoints.
+    *   [ ] Use the `with_watch_providers` parameter to filter by streaming service availability (comma-separated list of provider IDs).
+    *   [ ] Use the `language` parameter to request Turkish data (`tr-TR`).
+    *   [ ] Define TypeScript interfaces for TMDB API responses.
+
+3.  **Streaming Service Selection (`screens/SettingsScreen.tsx`, `hooks/usePreferences.ts`):**
+    *   [ ] Create `SettingsScreen.tsx`.
+    *   [ ] Use `tmdbService.getWatchProviders()` to fetch and display a list of streaming services with checkboxes/toggles.
+    *   [ ] Create `usePreferences` hook to manage user preferences:
+        *   [ ] `getPreferences()`:  Retrieve selected service IDs from `AsyncStorage`.
+        *   [ ] `setPreferences(serviceIds: number[])`: Save selected service IDs to `AsyncStorage`.
+    *   [ ] Use `usePreferences` in `SettingsScreen` to load and save selections.
+
+4.  **Recommendation Logic (`hooks/useRecommendations.ts`):**
+    *   [ ] Create `useRecommendations` hook.
+    *   [ ] Within `useRecommendations`:
+        *   [ ] Call `usePreferences` to get the user's selected streaming service IDs.
+        *   [ ] Construct the `with_watch_providers` string.
+        *   [ ] Call `tmdbService.getPopularMovies` and/or `tmdbService.getPopularTVShows`, passing the `with_watch_providers` string and `page` number.
+        *   [ ] Combine the results (if fetching both movies and TV shows).
+        *   [ ] Handle loading and error states using `react-query`'s `isLoading` and `error` properties.
+        *   [ ] Return the recommendation data.
+
+5.  **UI Components (`components/`):**
+    *   [ ] Create reusable UI components:
+        *   [ ] `MediaCard.tsx`: Displays a movie/TV show card (poster, title, synopsis, genres, ratings, streaming icons).
+        *   [ ] `StreamingServiceIcon.tsx`: Displays an icon for a given streaming service ID.
+        *   [ ] `RatingStars.tsx`: Displays ratings visually (using stars or a similar representation).
+        *   [ ] `Loader.tsx`:  A loading spinner component.
+        *   [ ] `ErrorMessage.tsx`: Displays error messages.
+        *   [ ] Other components as needed.
+
+6.  **Screens (`screens/`):**
+    *   [ ] `HomeScreen.tsx`:
+        *   [ ] Use the `useRecommendations` hook to fetch and display recommendations.
+        *   [ ] Implement pagination (load more recommendations on scroll or button press).
+        *   [ ] Implement basic genre filtering (using TMDB's genre IDs and passing them to the API).
+    *   [ ] `DetailsScreen.tsx`:
+        *   [ ] Accept a movie/TV show ID as a parameter (via Expo Router).
+        *   [ ] Use `tmdbService.getMovieDetails` or `tmdbService.getTVShowDetails` to fetch details.
+        *   [ ] Display the detailed information.
+    *   [ ] `SearchScreen.tsx`:
+        *   [ ] Implement a search input field.
+        *   [ ] Use `tmdbService.searchMedia` to perform the search.
+        *   [ ] Display search results (using `MediaCard` components).
+    *   [ ] `SettingsScreen.tsx`: (Already covered in Streaming Service Selection section).
+
+7.  **Localization (`localization/`):**
+    *   [ ] Set up `i18n-js`.
+    *   [ ] Create `tr.json` file with Turkish translations for all UI text.
+    *   [ ] Use `expo-localization` to detect the user's preferred language.
+    *   [ ] Use `i18n-js` to display the correct translations based on the detected language.
+
+8. **Supabase Setup (Preparation):**
+     * [ ] Create a Supabase project.
+     * [ ] Create the following tables in your Supabase database:
+        * `users` (columns: `id` (UUID, primary key), `...` (other user fields, if needed later)).
+        * `watchlists` (columns: `id` (UUID, primary key), `user_id` (UUID, foreign key referencing `users.id`), `tmdb_id` (integer), `media_type` (string, 'movie' or 'tv')).
+        * `preferences` (columns: `user_id` (UUID, primary key, foreign key referencing `users.id`), `streaming_service_ids` (integer array)).
+    * [ ] Set up Row Level Security (RLS) policies for these tables (when implementing authentication).
+    * [ ] Install and initialize the Supabase client (`@supabase/supabase-js`).
+
+This plan provides a structured approach to building the MVP of "Ne İzlesem?". Each step is broken down into manageable tasks. Remember to test each component and service as you build it. The use of hooks and reusable components will make the code more maintainable and scalable. The localization setup ensures the app is ready for Turkish-speaking users.  The Supabase setup prepares for future user account and watchlist functionality.
+```

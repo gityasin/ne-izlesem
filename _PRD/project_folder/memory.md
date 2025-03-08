@@ -1,0 +1,84 @@
+# Project Memory - Ne İzlesem?
+
+## Current State:
+- Project setup completed with Expo and TypeScript
+- Basic folder structure created (app, components, services, hooks, etc.)
+- Main screens implemented:
+  - Home screen
+  - Settings screen for selecting streaming services (now using real TMDB API data)
+  - Recommendations screen with filtering capabilities
+  - Details screen for viewing movie/TV show information
+  - Search screen for finding content
+- Core components implemented:
+  - MediaCard for displaying movie/TV show items
+  - StreamingServiceIcon for showing streaming service logos
+  - Loader for loading states
+  - ErrorMessage for error handling
+  - RatingStars for visual rating display
+- TMDB API integration with the following functionality:
+  - Fetching popular movies and TV shows
+  - Getting detailed information about specific content
+  - Searching for movies and TV shows
+  - Getting watch provider information (now fully implemented with real data)
+- User preferences management using AsyncStorage
+- Localization system set up for Turkish language support
+- Navigation implemented using Expo Router
+- Performance optimizations:
+  - Fixed "Cannot read properties of undefined (reading 'length')" error in useRecommendations hook by adding proper null checks
+  - Added null checks for preferences and selectedServiceIds in useRecommendations
+  - Added null check for recommendations array in recommendations screen
+  - Added year range to settings screen
+- Renamed settings screen to streaming-services.tsx to better reflect its purpose
+- Created a new settings screen with dark mode toggle and year range slider
+- Added a gear icon to the top right of the home page that links to the settings screen
+- Implemented dark mode support with ThemeContext
+- Fixed issue with changing categories in recommendations not working properly
+- Added refetch functionality to useRecommendations hook
+- Updated all screens to use the theme context for consistent styling
+- Applied translations throughout the app using i18n
+- Improved UI with consistent styling and better readability
+- Implemented proper sorting of streaming services with popular services at the top
+- Added sorting options to the recommendations screen (IMDB rating, popularity, release date, vote count)
+- Updated the streaming services order to match the requested order: Netflix, Amazon Prime Video, Disney+, HBO Max, Apple TV+, Youtube, BluTV, Puhu TV, Gain, Exxen, TOD, TV+, MUBI
+- Enhanced the useRecommendations hook to support sorting by different criteria
+- Updated the MediaItem interface to include popularity and vote_count properties for sorting
+- Modified the tmdbService to accept additional parameters for sorting
+- Added new translation keys for sorting options in both English and Turkish
+- Fixed issue with genre selection in recommendations screen not triggering API calls
+- Improved the UI of the recommendations screen to ensure text fits properly in UI boxes on mobile
+- Enhanced the homepage with a modern card-based design for better UX
+- Added new translation keys for the improved homepage UI
+- Updated the recommendations screen to properly handle pagination and loading states
+- Improved error handling and empty state displays in the recommendations screen
+- Implemented real genre data fetching from TMDB API with useGenres hook
+- Added proper debugging logs to track API calls and state changes
+- Enhanced the useRecommendations hook to properly handle genre filtering
+- Updated the recommendations screen to use real genre data instead of hardcoded sample genres
+- Improved the tmdbService to normalize data and add media_type to all results
+- Added console logs throughout the application to aid in debugging
+- Fixed critical issue where changing genres in the recommendations screen wasn't updating the displayed content:
+  - Added a dedicated useEffect in useRecommendations hook to force refetch when genre changes
+  - Improved logging to better track state changes and API calls
+  - Enhanced the recommendations screen UI to provide better feedback during loading
+  - Added a retry button in the no results state to allow users to manually trigger a refetch
+  - Improved the dependency array in useEffect to properly trigger updates when filters change
+- Fixed issue with changing categories in suggestions by replacing hardcoded GENRES_MAP in MediaCard component with real genre data from the useGenres hook
+
+## Notes:
+
+- Remember to handle TMDB API rate limits.
+- Prioritize Turkish language data from TMDB.
+- Ensure all UI text is translated into Turkish.
+- The initial implementation uses `AsyncStorage` for storing user preferences. This will be migrated to Supabase in Phase 2.
+- The app now uses real streaming service data from the TMDB API, with a focus on popular Turkish streaming services.
+- The settings screen has been updated to filter and sort streaming services based on their availability in Turkey.
+- The StreamingService interface has been updated to match the TMDB API response structure, using provider_id instead of id.
+- Comprehensive error handling has been implemented for API requests and data processing to prevent runtime errors.
+- The genres data is currently hardcoded - this should be fetched from the TMDB API and localized properly.
+- Unit tests need to be implemented for all components and services.
+- Always add null checks when accessing properties of objects that might be undefined, especially when working with API responses and user preferences.
+- The theme context provides light and dark mode support with a system option that follows the device's theme.
+- User preferences now include theme mode selection that persists across app restarts.
+- The recommendations screen now supports sorting by IMDB rating, popularity, release date, and vote count.
+- The streaming services are now properly ordered with the most popular services at the top.
+- The sorting functionality in the recommendations screen allows toggling between ascending and descending order.

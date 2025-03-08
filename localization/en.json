@@ -1,0 +1,110 @@
+{
+  "appName": "What Should I Watch?",
+  "home": {
+    "description": "Select your subscribed streaming services to discover movie and TV show recommendations!",
+    "selectServices": "Select Streaming Services",
+    "viewRecommendations": "View Recommendations",
+    "search": "Search",
+    "streamingServices": "Streaming Services",
+    "streamingServicesDescription": "Choose the streaming platforms you're subscribed to so we can show you content that's available to you.",
+    "recommendations": "Recommendations",
+    "recommendationsDescription": "Discover movies and TV shows based on your selected streaming services and preferences.",
+    "searchTitle": "Search Content",
+    "searchDescription": "Looking for something specific? Search for movies and TV shows across all platforms."
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Select the streaming services you are subscribed to:",
+    "save": "Save",
+    "loading": "Loading settings...",
+    "appearance": "Appearance",
+    "darkMode": "Dark Mode",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "contentFilters": "Content Filters",
+    "yearRangeDescription": "Select the release year range for content:",
+    "startYear": "Start Year",
+    "endYear": "End Year"
+  },
+  "streamingServices": {
+    "title": "Streaming Services",
+    "description": "Select the streaming services you are subscribed to:",
+    "save": "Save",
+    "loading": "Loading streaming services...",
+    "error": "An error occurred while loading streaming services.",
+    "empty": "No streaming services found."
+  },
+  "recommendations": {
+    "title": "Recommendations",
+    "loading": "Loading recommendations...",
+    "error": "An error occurred while loading recommendations. Please try again later.",
+    "tryAgain": "Try Again",
+    "empty": "No content found matching your selected filters. Please try a different filter or update your service selection.",
+    "noResults": "No results found. Try changing your filters or selecting different streaming services.",
+    "loadingMore": "Loading more...",
+    "contentType": "Content Type:",
+    "genre": "Genre:",
+    "sort": "Sort By:",
+    "contentTypes": {
+      "all": "All",
+      "movies": "Movies",
+      "tvShows": "TV Shows"
+    }
+  },
+  "details": {
+    "loading": "Loading details...",
+    "error": "An error occurred while loading details. Please try again later.",
+    "releaseDate": "Release Date:",
+    "runtime": "Runtime:",
+    "unknown": "Unknown",
+    "rating": "Rating:",
+    "votes": "votes",
+    "summary": "Summary",
+    "noSummary": "No summary available for this content.",
+    "availablePlatforms": "Available on Platforms",
+    "cast": "Cast"
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search for movies or TV shows...",
+    "loading": "Searching...",
+    "error": "An error occurred while searching. Please try again later.",
+    "noResults": "No results found for",
+    "instructions": "Enter a movie or TV show name to search."
+  },
+  "genres": {
+    "action": "Action",
+    "adventure": "Adventure",
+    "animation": "Animation",
+    "comedy": "Comedy",
+    "crime": "Crime",
+    "documentary": "Documentary",
+    "drama": "Drama",
+    "family": "Family",
+    "fantasy": "Fantasy",
+    "history": "History",
+    "horror": "Horror",
+    "music": "Music",
+    "mystery": "Mystery",
+    "romance": "Romance",
+    "scienceFiction": "Science Fiction",
+    "tvMovie": "TV Movie",
+    "thriller": "Thriller",
+    "war": "War",
+    "western": "Western"
+  },
+  "sort": {
+    "imdbRating": "IMDB Rating",
+    "popularity": "Popularity",
+    "releaseDate": "Release Date",
+    "voteCount": "Vote Count"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done"
+  }
+}

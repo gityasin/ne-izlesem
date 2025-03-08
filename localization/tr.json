@@ -1,0 +1,110 @@
+{
+  "appName": "Ne İzlesem?",
+  "home": {
+    "description": "Film ve dizi önerilerini keşfetmek için aboneliğiniz olan streaming servislerini seçin!",
+    "selectServices": "Streaming Servislerini Seç",
+    "viewRecommendations": "Önerileri Gör",
+    "search": "Ara",
+    "streamingServices": "Streaming Servisleri",
+    "streamingServicesDescription": "Size uygun içerikleri gösterebilmemiz için abone olduğunuz streaming platformlarını seçin.",
+    "recommendations": "Öneriler",
+    "recommendationsDescription": "Seçtiğiniz streaming servislerine ve tercihlerinize göre film ve dizileri keşfedin.",
+    "searchTitle": "İçerik Ara",
+    "searchDescription": "Belirli bir şey mi arıyorsunuz? Tüm platformlarda film ve dizi arayın."
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "description": "Aboneliğiniz olan streaming servislerini seçin:",
+    "save": "Kaydet",
+    "loading": "Ayarlar yükleniyor...",
+    "appearance": "Görünüm",
+    "darkMode": "Karanlık Mod",
+    "light": "Açık",
+    "dark": "Koyu",
+    "system": "Sistem",
+    "contentFilters": "İçerik Filtreleri",
+    "yearRangeDescription": "İçerik için yayın yılı aralığını seçin:",
+    "startYear": "Başlangıç Yılı",
+    "endYear": "Bitiş Yılı"
+  },
+  "streamingServices": {
+    "title": "Streaming Servisleri",
+    "description": "Aboneliğiniz olan streaming servislerini seçin:",
+    "save": "Kaydet",
+    "loading": "Streaming servisleri yükleniyor...",
+    "error": "Servis sağlayıcıları yüklenirken bir hata oluştu.",
+    "empty": "Servis sağlayıcıları bulunamadı."
+  },
+  "recommendations": {
+    "title": "Öneriler",
+    "loading": "Öneriler yükleniyor...",
+    "error": "Öneriler yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
+    "tryAgain": "Tekrar Dene",
+    "empty": "Seçtiğiniz filtrelerle uyumlu içerik bulunamadı. Lütfen farklı bir filtre deneyin veya servis seçiminizi güncelleyin.",
+    "noResults": "Sonuç bulunamadı. Filtrelerinizi değiştirmeyi veya farklı streaming servisleri seçmeyi deneyin.",
+    "loadingMore": "Daha fazla yükleniyor...",
+    "contentType": "İçerik Tipi:",
+    "genre": "Tür:",
+    "sort": "Sıralama:",
+    "contentTypes": {
+      "all": "Tümü",
+      "movies": "Filmler",
+      "tvShows": "Diziler"
+    }
+  },
+  "details": {
+    "loading": "Detaylar yükleniyor...",
+    "error": "Detaylar yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
+    "releaseDate": "Yayın Tarihi:",
+    "runtime": "Süre:",
+    "unknown": "Bilinmiyor",
+    "rating": "Puanlama:",
+    "votes": "oy",
+    "summary": "Özet",
+    "noSummary": "Bu içerik için özet bulunmuyor.",
+    "availablePlatforms": "İzleyebileceğiniz Platformlar",
+    "cast": "Oyuncular"
+  },
+  "search": {
+    "title": "Ara",
+    "placeholder": "Film veya dizi ara...",
+    "loading": "Aranıyor...",
+    "error": "Arama yapılırken bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
+    "noResults": "için sonuç bulunamadı.",
+    "instructions": "Film veya dizi adı girerek arama yapabilirsiniz."
+  },
+  "genres": {
+    "action": "Aksiyon",
+    "adventure": "Macera",
+    "animation": "Animasyon",
+    "comedy": "Komedi",
+    "crime": "Suç",
+    "documentary": "Belgesel",
+    "drama": "Drama",
+    "family": "Aile",
+    "fantasy": "Fantastik",
+    "history": "Tarih",
+    "horror": "Korku",
+    "music": "Müzik",
+    "mystery": "Gizem",
+    "romance": "Romantik",
+    "scienceFiction": "Bilim Kurgu",
+    "tvMovie": "TV Film",
+    "thriller": "Gerilim",
+    "war": "Savaş",
+    "western": "Vahşi Batı"
+  },
+  "sort": {
+    "imdbRating": "IMDB Puanı",
+    "popularity": "Popülerlik",
+    "releaseDate": "Yayın Tarihi",
+    "voteCount": "Oy Sayısı"
+  },
+  "common": {
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "back": "Geri",
+    "next": "İleri",
+    "done": "Tamam"
+  }
+}
