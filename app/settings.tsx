@@ -6,6 +6,7 @@ import Slider from '@react-native-community/slider';
 import { usePreferences } from '../hooks/usePreferences';
 import { useTheme } from '../context/ThemeContext';
 import i18n from '../localization/i18n';
+import { useQueryClient } from '@tanstack/react-query';
 
 // Min and max years for the year range slider
 const MIN_YEAR = 1900;
@@ -17,6 +18,7 @@ export default function SettingsScreen() {
   const [startYear, setStartYear] = useState(MIN_YEAR);
   const [endYear, setEndYear] = useState(MAX_YEAR);
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     // Load saved preferences
@@ -59,6 +61,12 @@ export default function SettingsScreen() {
     try {
       // Save year range
       await updateYearRange(startYear, endYear);
+      
+      // Invalidate recommendations queries to ensure fresh data on next fetch
+      queryClient.invalidateQueries({ queryKey: ['movies', 'recommendations'] });
+      queryClient.invalidateQueries({ queryKey: ['tv', 'recommendations'] });
+      
+      console.log('Year range updated, recommendations cache invalidated');
       
       router.back(); // Navigate back after saving
     } catch (error) {

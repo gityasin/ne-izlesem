@@ -53,16 +53,32 @@ export default function RecommendationsScreen() {
 
   // Reset page and refetch when filters change
   useEffect(() => {
-    console.log('Filter changed - selectedGenreId:', selectedGenreId, 'mediaType:', mediaTypeFilter);
+    console.log('Filter changed in recommendations screen:', {
+      selectedGenreId,
+      mediaType: mediaTypeFilter,
+      sortOption: sortConfig.option,
+      sortDirection: sortConfig.direction
+    });
     
-    if (page === 1) {
-      console.log('Refetching data with current page:', page);
+    // Always reset page to 1 when filters change
+    setPage(1);
+    
+    // Force refetch with a slight delay to ensure page reset has been applied
+    setTimeout(() => {
+      console.log('Triggering refetch after filter change');
       refetch();
-    } else {
-      console.log('Resetting page to 1 from:', page);
-      setPage(1);
-    }
-  }, [selectedGenreId, mediaTypeFilter, sortConfig, refetch, page]);
+    }, 100);
+    
+  }, [selectedGenreId, mediaTypeFilter, sortConfig, refetch]);
+
+  // Component render log
+  useEffect(() => {
+    console.log('Recommendations screen rendered with:', {
+      page,
+      resultsCount: recommendations?.length || 0,
+      firstItem: recommendations?.[0]?.title || recommendations?.[0]?.name || 'none'
+    });
+  }, [recommendations, page]);
 
   // Log recommendations for debugging
   useEffect(() => {

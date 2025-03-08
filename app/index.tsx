@@ -1,30 +1,66 @@
 import React from 'react';
-import { StyleSheet, View, ScrollView, Image } from 'react-native';
-import { Text, Button, IconButton, Card, Surface, useTheme as usePaperTheme } from 'react-native-paper';
-import { Link, Stack } from 'expo-router';
+import { StyleSheet, View, ScrollView, Image, TouchableOpacity, Platform, Pressable } from 'react-native';
+import { Text, Button, Card, Surface, useTheme as usePaperTheme, IconButton } from 'react-native-paper';
+import { Link, Stack, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useTheme } from '../context/ThemeContext';
 import i18n from '../localization/i18n';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function HomeScreen() {
   const { theme } = useTheme();
   const paperTheme = usePaperTheme();
+
+  const navigateToSettings = () => {
+    router.push('/settings');
+  };
+
+  // Platform-specific settings button implementation
+  const SettingsButton = () => {
+    if (Platform.OS === 'android') {
+      // On Android, use Pressable with ripple effect for better feedback
+      return (
+        <Pressable
+          onPress={navigateToSettings}
+          style={styles.settingsButton}
+          accessibilityLabel={i18n.t('common.settings')}
+          testID="settings-button"
+          hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
+          android_ripple={{ 
+            color: theme.dark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)', 
+            radius: 28,
+            borderless: true 
+          }}
+        >
+          <MaterialCommunityIcons 
+            name="cog" 
+            size={30} 
+            color={theme.colors.onSurface} 
+          />
+        </Pressable>
+      );
+    } else {
+      // On iOS and other platforms, use IconButton which works better there
+      return (
+        <IconButton
+          icon="cog"
+          size={30}
+          iconColor={theme.colors.onSurface}
+          style={styles.settingsButton}
+          onPress={navigateToSettings}
+          accessibilityLabel={i18n.t('common.settings')}
+          testID="settings-button"
+        />
+      );
+    }
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Stack.Screen 
         options={{ 
           title: i18n.t('appName'),
-          headerRight: () => (
-            <Link href="/settings" asChild>
-              <IconButton
-                icon="cog"
-                size={24}
-                onPress={() => {}}
-                iconColor={theme.colors.onSurface}
-              />
-            </Link>
-          ),
+          headerRight: () => <SettingsButton />,
         }} 
       />
       <StatusBar style={theme.dark ? 'light' : 'dark'} />
@@ -144,5 +180,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 12,
     overflow: 'hidden',
+  },
+  settingsButton: {
+    width: 60,
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Platform.OS === 'ios' ? -15 : -10,
   },
 });

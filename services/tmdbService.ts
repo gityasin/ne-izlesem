@@ -38,8 +38,24 @@ export const tmdbService = {
   ): Promise<TMDBResponse<MediaItem>> => {
     const params: any = { page, ...additionalParams };
     
+    // Use discover endpoint if we have filtering parameters
+    const endpoint = (with_watch_providers || startYear || endYear || additionalParams.with_genres || additionalParams.sort_by) 
+      ? '/discover/movie' 
+      : '/movie/popular';
+    
     if (with_watch_providers) {
-      params.with_watch_providers = with_watch_providers;
+      // TMDB API requires brackets around watch providers for the discover endpoint
+      if (endpoint === '/discover/movie') {
+        // Remove any potential formatting issues in the string
+        const cleanProviders = with_watch_providers.split('|')
+          .map(id => id.trim())
+          .filter(id => id !== '')
+          .join('|');
+        
+        params.with_watch_providers = cleanProviders;
+      } else {
+        params.with_watch_providers = with_watch_providers;
+      }
       params.watch_region = 'TR';
     }
     
@@ -52,9 +68,9 @@ export const tmdbService = {
       params.primary_release_date_lte = `${endYear}-12-31`;
     }
     
-    console.log('Making API call to /movie/popular with params:', params);
+    console.log(`Making API call to ${endpoint} with params:`, params);
     
-    const response = await tmdbApi.get<TMDBResponse<MediaItem>>('/movie/popular', { params });
+    const response = await tmdbApi.get<TMDBResponse<MediaItem>>(endpoint, { params });
     
     console.log(`Received ${response.data.results.length} movies from API`);
     
@@ -80,8 +96,24 @@ export const tmdbService = {
   ): Promise<TMDBResponse<MediaItem>> => {
     const params: any = { page, ...additionalParams };
     
+    // Use discover endpoint if we have filtering parameters
+    const endpoint = (with_watch_providers || startYear || endYear || additionalParams.with_genres || additionalParams.sort_by) 
+      ? '/discover/tv' 
+      : '/tv/popular';
+    
     if (with_watch_providers) {
-      params.with_watch_providers = with_watch_providers;
+      // TMDB API requires brackets around watch providers for the discover endpoint
+      if (endpoint === '/discover/tv') {
+        // Remove any potential formatting issues in the string
+        const cleanProviders = with_watch_providers.split('|')
+          .map(id => id.trim())
+          .filter(id => id !== '')
+          .join('|');
+        
+        params.with_watch_providers = cleanProviders;
+      } else {
+        params.with_watch_providers = with_watch_providers;
+      }
       params.watch_region = 'TR';
     }
     
@@ -94,9 +126,9 @@ export const tmdbService = {
       params.first_air_date_lte = `${endYear}-12-31`;
     }
     
-    console.log('Making API call to /tv/popular with params:', params);
+    console.log(`Making API call to ${endpoint} with params:`, params);
     
-    const response = await tmdbApi.get<TMDBResponse<MediaItem>>('/tv/popular', { params });
+    const response = await tmdbApi.get<TMDBResponse<MediaItem>>(endpoint, { params });
     
     console.log(`Received ${response.data.results.length} TV shows from API`);
     
@@ -178,19 +210,73 @@ export const tmdbService = {
   // Get available watch providers in Turkey
   getWatchProviders: async (): Promise<StreamingService[]> => {
     try {
-      const response = await tmdbApi.get<WatchProviderResponse>('/watch/providers/movie', {
-        params: {
-          watch_region: 'TR',
-        },
-      });
+      // Fetch both movie and TV providers
+      const [movieProvidersResponse, tvProvidersResponse] = await Promise.all([
+        tmdbApi.get<WatchProviderResponse>('/watch/providers/movie', {
+          params: {
+            watch_region: 'TR',
+          },
+        }),
+        tmdbApi.get<WatchProviderResponse>('/watch/providers/tv', {
+          params: {
+            watch_region: 'TR',
+          },
+        })
+      ]);
       
-      // Ensure we have valid data
-      if (!response.data || !response.data.results || !Array.isArray(response.data.results)) {
-        console.error('Invalid watch provider data format:', response.data);
+      // Ensure we have valid data for movies
+      if (!movieProvidersResponse.data || !movieProvidersResponse.data.results || !Array.isArray(movieProvidersResponse.data.results)) {
+        console.error('Invalid movie watch provider data format:', movieProvidersResponse.data);
         return [];
       }
       
-      return response.data.results;
+      // Ensure we have valid data for TV shows
+      if (!tvProvidersResponse.data || !tvProvidersResponse.data.results || !Array.isArray(tvProvidersResponse.data.results)) {
+        console.error('Invalid TV watch provider data format:', tvProvidersResponse.data);
+        return movieProvidersResponse.data.results; // Return just movie providers if TV providers fail
+      }
+      
+      // Combine providers and remove duplicates
+      const movieProviders = movieProvidersResponse.data.results;
+      const tvProviders = tvProvidersResponse.data.results;
+      
+      // Log Amazon Prime details specifically to diagnose issues
+      const amazonPrimeMovie = movieProviders.find(p => p.provider_id === 119 || p.provider_name.includes("Amazon Prime"));
+      const amazonPrimeTV = tvProviders.find(p => p.provider_id === 119 || p.provider_name.includes("Amazon Prime"));
+      
+      console.log('Amazon Prime in movie providers:', amazonPrimeMovie ? 
+        `Found (ID: ${amazonPrimeMovie.provider_id}, Name: ${amazonPrimeMovie.provider_name})` : 
+        'Not found');
+      
+      console.log('Amazon Prime in TV providers:', amazonPrimeTV ? 
+        `Found (ID: ${amazonPrimeTV.provider_id}, Name: ${amazonPrimeTV.provider_name})` : 
+        'Not found');
+      
+      // Create a map to track providers by ID
+      const providersMap = new Map<number, StreamingService>();
+      
+      // Add movie providers to the map
+      movieProviders.forEach(provider => {
+        providersMap.set(provider.provider_id, provider);
+      });
+      
+      // Add TV providers to the map (will overwrite if already exists)
+      tvProviders.forEach(provider => {
+        providersMap.set(provider.provider_id, provider);
+      });
+      
+      // Convert map back to array
+      const combinedProviders = Array.from(providersMap.values());
+      
+      // Additional logging for Amazon Prime in final results
+      const amazonPrimeFinal = combinedProviders.find(p => p.provider_id === 119);
+      console.log('Amazon Prime in final providers list:', amazonPrimeFinal ? 
+        `Found (ID: ${amazonPrimeFinal.provider_id}, Name: ${amazonPrimeFinal.provider_name})` : 
+        'Not found');
+      
+      console.log(`Fetched ${movieProviders.length} movie providers and ${tvProviders.length} TV providers, combined into ${combinedProviders.length} unique providers`);
+      
+      return combinedProviders;
     } catch (error) {
       console.error('Error fetching watch providers:', error);
       return [];
@@ -230,6 +316,25 @@ export const tmdbService = {
     } catch (error) {
       console.error('Error fetching genres:', error);
       return [];
+    }
+  },
+
+  // Get watch providers for a specific movie or TV show
+  getItemWatchProviders: async (id: number, mediaType: 'movie' | 'tv'): Promise<any> => {
+    try {
+      const response = await tmdbApi.get(`/${mediaType}/${id}/watch/providers`);
+      
+      // Ensure we have valid data
+      if (!response.data || !response.data.results) {
+        console.error(`Invalid watch provider data format for ${mediaType} ${id}:`, response.data);
+        return null;
+      }
+      
+      // Return the watch providers for Turkey (TR)
+      return response.data.results.TR || null;
+    } catch (error) {
+      console.error(`Error fetching watch providers for ${mediaType} ${id}:`, error);
+      return null;
     }
   },
 };

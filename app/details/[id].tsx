@@ -6,12 +6,21 @@ import { useQuery } from '@tanstack/react-query';
 import { tmdbService } from '../../services/tmdbService';
 import { ENV } from '../../constants/.env';
 import { StreamingServiceIcon } from '../../components/StreamingServiceIcon';
+import { useTheme } from '../../context/ThemeContext';
+
+// Define the provider type
+interface Provider {
+  provider_id: number;
+  provider_name: string;
+  logo_path: string;
+}
 
 const { width } = Dimensions.get('window');
 const POSTER_WIDTH = width * 0.4;
 const POSTER_HEIGHT = POSTER_WIDTH * 1.5;
 
 export default function DetailsScreen() {
+  const { theme } = useTheme();
   const { id, mediaType } = useLocalSearchParams<{ id: string; mediaType: 'movie' | 'tv' }>();
   
   // Fetch media details
@@ -29,17 +38,17 @@ export default function DetailsScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" />
-        <Text style={styles.loadingText}>Detaylar yükleniyor...</Text>
+      <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+        <Text style={[styles.loadingText, { color: theme.colors.text }]}>Detaylar yükleniyor...</Text>
       </View>
     );
   }
 
   if (error || !data) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>
+      <View style={[styles.errorContainer, { backgroundColor: theme.colors.background }]}>
+        <Text style={[styles.errorText, { color: theme.colors.text }]}>
           Detaylar yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.
         </Text>
       </View>
@@ -75,16 +84,26 @@ export default function DetailsScreen() {
 
   // Get streaming providers for Turkey (TR)
   const providers = data.watch_providers?.results?.TR || {};
-  const streamingProviders = providers.flatrate || [];
+  const streamingProviders = (providers.flatrate || []) as Provider[];
+
+  // Create a semi-transparent gradient color based on theme
+  const gradientColor = theme.dark 
+    ? 'rgba(30, 30, 30, 0.9)' 
+    : 'rgba(255, 255, 255, 0.9)';
+
+  // Create a lighter version of the primary color for chips
+  const chipBackgroundColor = theme.dark 
+    ? 'rgba(80, 80, 80, 0.3)' 
+    : 'rgba(220, 220, 250, 0.5)';
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Stack.Screen options={{ title: title }} />
 
       {backdropUrl && (
         <View style={styles.backdropContainer}>
           <Image source={{ uri: backdropUrl }} style={styles.backdrop} />
-          <View style={styles.backdropGradient} />
+          <View style={[styles.backdropGradient, { backgroundColor: gradientColor }]} />
         </View>
       )}
 
@@ -93,32 +112,38 @@ export default function DetailsScreen() {
           <Image source={{ uri: posterUrl }} style={styles.poster} />
           
           <View style={styles.headerInfo}>
-            <Text variant="headlineSmall" style={styles.title}>{title}</Text>
+            <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.text }]}>
+              {title}
+            </Text>
             
             {originalTitle && (
-              <Text variant="bodyMedium" style={styles.originalTitle}>
+              <Text variant="bodyMedium" style={[styles.originalTitle, { color: theme.colors.text }]}>
                 {originalTitle}
               </Text>
             )}
             
             <View style={styles.statsContainer}>
-              <Text variant="bodyMedium">
-                <Text style={styles.statLabel}>Yayın Tarihi:</Text> {releaseDate}
+              <Text variant="bodyMedium" style={{ color: theme.colors.text }}>
+                <Text style={[styles.statLabel, { color: theme.colors.primary }]}>Yayın Tarihi:</Text> {releaseDate}
               </Text>
               
-              <Text variant="bodyMedium">
-                <Text style={styles.statLabel}>Süre:</Text> {runtime}
+              <Text variant="bodyMedium" style={{ color: theme.colors.text }}>
+                <Text style={[styles.statLabel, { color: theme.colors.primary }]}>Süre:</Text> {runtime}
               </Text>
               
-              <Text variant="bodyMedium">
-                <Text style={styles.statLabel}>Puanlama:</Text> ★ {data.vote_average.toFixed(1)} ({data.vote_count} oy)
+              <Text variant="bodyMedium" style={{ color: theme.colors.text }}>
+                <Text style={[styles.statLabel, { color: theme.colors.primary }]}>Puanlama:</Text> ★ {data.vote_average.toFixed(1)} ({data.vote_count} oy)
               </Text>
             </View>
             
             {data.genres && data.genres.length > 0 && (
               <View style={styles.genresContainer}>
                 {data.genres.map(genre => (
-                  <Chip key={genre.id} style={styles.genreChip}>
+                  <Chip 
+                    key={genre.id} 
+                    style={[styles.genreChip, { backgroundColor: chipBackgroundColor }]}
+                    textStyle={{ color: theme.colors.primary }}
+                  >
                     {genre.name}
                   </Chip>
                 ))}
@@ -128,30 +153,37 @@ export default function DetailsScreen() {
         </View>
 
         {data.tagline && (
-          <Text variant="bodyLarge" style={styles.tagline}>
+          <Text variant="bodyLarge" style={[styles.tagline, { color: theme.colors.text }]}>
             "{data.tagline}"
           </Text>
         )}
 
-        <Divider style={styles.divider} />
+        <Divider style={[styles.divider, { backgroundColor: theme.colors.border }]} />
 
-        <Text variant="titleMedium" style={styles.sectionTitle}>
+        <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.primary }]}>
           Özet
         </Text>
-        <Text variant="bodyMedium" style={styles.overview}>
+        <Text variant="bodyMedium" style={[styles.overview, { color: theme.colors.text }]}>
           {data.overview || 'Bu içerik için özet bulunmuyor.'}
         </Text>
 
         {streamingProviders.length > 0 && (
           <>
-            <Divider style={styles.divider} />
-            <Text variant="titleMedium" style={styles.sectionTitle}>
+            <Divider style={[styles.divider, { backgroundColor: theme.colors.border }]} />
+            <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.primary }]}>
               İzleyebileceğiniz Platformlar
             </Text>
             <View style={styles.providersContainer}>
-              {streamingProviders.map(provider => (
+              {streamingProviders.map((provider: Provider) => (
                 <View key={provider.provider_id} style={styles.providerItem}>
-                  <StreamingServiceIcon id={provider.provider_id} size={50} />
+                  <StreamingServiceIcon 
+                    id={provider.provider_id} 
+                    size={50} 
+                    logoPath={provider.logo_path}
+                  />
+                  <Text variant="bodySmall" style={[styles.providerName, { color: theme.colors.text }]} numberOfLines={1}>
+                    {provider.provider_name}
+                  </Text>
                 </View>
               ))}
             </View>
@@ -160,8 +192,8 @@ export default function DetailsScreen() {
 
         {data.credits && data.credits.cast && data.credits.cast.length > 0 && (
           <>
-            <Divider style={styles.divider} />
-            <Text variant="titleMedium" style={styles.sectionTitle}>
+            <Divider style={[styles.divider, { backgroundColor: theme.colors.border }]} />
+            <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.primary }]}>
               Oyuncular
             </Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.castContainer}>
@@ -173,10 +205,10 @@ export default function DetailsScreen() {
                 return (
                   <View key={person.id} style={styles.castItem}>
                     <Image source={{ uri: profileUrl }} style={styles.castImage} />
-                    <Text variant="bodySmall" numberOfLines={1} style={styles.castName}>
+                    <Text variant="bodySmall" numberOfLines={1} style={[styles.castName, { color: theme.colors.text }]}>
                       {person.name}
                     </Text>
-                    <Text variant="bodySmall" numberOfLines={1} style={styles.castCharacter}>
+                    <Text variant="bodySmall" numberOfLines={1} style={[styles.castCharacter, { color: theme.colors.text }]}>
                       {person.character}
                     </Text>
                   </View>
@@ -193,7 +225,6 @@ export default function DetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   loadingContainer: {
     flex: 1,
@@ -227,7 +258,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: '50%',
-    backgroundColor: 'rgba(255,255,255,0.9)',
   },
   contentContainer: {
     padding: 16,
@@ -290,6 +320,7 @@ const styles = StyleSheet.create({
     marginRight: 16,
     marginBottom: 16,
     alignItems: 'center',
+    width: 80,
   },
   castContainer: {
     flexDirection: 'row',
@@ -311,4 +342,9 @@ const styles = StyleSheet.create({
   castCharacter: {
     fontStyle: 'italic',
   },
+  providerName: {
+    marginTop: 4,
+    textAlign: 'center',
+    fontSize: 10,
+  }
 });

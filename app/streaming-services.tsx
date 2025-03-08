@@ -3,7 +3,7 @@ import { StyleSheet, View, FlatList, Image, ScrollView } from 'react-native';
 import { Text, Checkbox, Button, Divider, ActivityIndicator } from 'react-native-paper';
 import { useLocalSearchParams, Stack, router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { tmdbService } from '../services/tmdbService';
 import { StreamingService } from '../types';
 import { ENV } from '../constants/.env';
@@ -33,6 +33,7 @@ export default function StreamingServicesScreen() {
   const { theme } = useTheme();
   const [selectedServices, setSelectedServices] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   // Fetch streaming services from TMDB API
   const { data: streamingServices, isLoading: isLoadingServices, error } = useQuery({
@@ -72,6 +73,12 @@ export default function StreamingServicesScreen() {
     try {
       // Save selected services
       await updateSelectedServices(selectedServices);
+      
+      // Invalidate recommendations queries to ensure fresh data on next fetch
+      queryClient.invalidateQueries({ queryKey: ['movies', 'recommendations'] });
+      queryClient.invalidateQueries({ queryKey: ['tv', 'recommendations'] });
+      
+      console.log('Preferences saved, recommendations cache invalidated');
       
       router.back(); // Navigate back after saving
     } catch (error) {

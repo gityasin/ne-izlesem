@@ -30,7 +30,7 @@ ne-izlesem/
 ```
 app/
 ├── _layout.tsx                # Root layout with providers and navigation configuration
-├── index.tsx                  # Home screen with modern card-based UI
+├── index.tsx                  # Home screen with modern card-based UI and improved touch targets
 ├── recommendations.tsx        # Recommendations screen with filtering and sorting options
 ├── search.tsx                 # Search screen
 ├── settings.tsx               # Settings screen with dark mode toggle and year range slider
@@ -45,7 +45,58 @@ app/
 components/
 ├── ErrorMessage.tsx           # Error message display component
 ├── Loader.tsx                 # Loading indicator component
-├── MediaCard.tsx              # Card component for displaying movie/TV show items with real genre data from the API
+├── MediaCard.tsx              # Responsive card for displaying movie/TV show items with dark theme support
 ├── RatingStars.tsx            # Visual rating display component
 └── StreamingServiceIcon.tsx   # Component for displaying streaming service logos
+```
+
+## Context Directory
+
+```
+context/
+├── ThemeContext.tsx           # Context provider for theme management (light/dark/system)
+```
+
+## Services Directory
+
+```
+services/
+├── tmdbService.ts           # Service for interacting with TMDB API, includes functions for fetching movies, TV shows, genres, and watch providers
+```
+
+## Hooks Directory
+
+```
+hooks/
+├── useGenres.ts             # Hook for fetching and caching genre data
+├── usePreferences.ts        # Hook for managing user preferences (streaming services, year range, theme)
+├── useRecommendations.ts    # Hook for fetching and filtering recommendations with improved cache invalidation
+└── useWatchProviders.ts     # Hook for fetching watch providers for specific media items
+```
+
+## Localization Directory
+
+```
+localization/
+├── i18n.ts                  # i18n configuration
+├── en.json                  # English translations
+└── tr.json                  # Turkish translations
+```
+
+## Types Directory
+
+```
+types/
+├── index.ts                 # Common type definitions
+├── tmdb.ts                  # TMDB API response type definitions
+└── preferences.ts           # User preferences type definitions
+```
+
+## Constants Directory
+
+```
+constants/
+├── colors.ts                # Color constants
+├── layout.ts                # Layout constants
+└── tmdb.ts                  # TMDB API constants
 ```

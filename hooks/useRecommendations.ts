@@ -1,8 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { tmdbService } from '../services/tmdbService';
 import { usePreferences } from './usePreferences';
 import { MediaItem, SortConfig } from '../types';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 
 export const useRecommendations = (
   page = 1,
@@ -11,11 +11,21 @@ export const useRecommendations = (
   sortConfig?: SortConfig
 ) => {
   const { preferences, loading: preferencesLoading } = usePreferences();
+  const queryClient = useQueryClient();
   
   // Convert the selected service IDs to the format needed for the TMDB API
   const watchProvidersParam = preferences?.selectedServiceIds?.length > 0
     ? preferences.selectedServiceIds.join('|')
     : undefined;
+  
+  // Check specifically for Amazon Prime Video
+  useEffect(() => {
+    if (preferences?.selectedServiceIds?.includes(119)) {
+      console.log('Amazon Prime Video (ID: 119) is selected in user preferences');
+    } else {
+      console.log('Amazon Prime Video is NOT in selected services', preferences?.selectedServiceIds);
+    }
+  }, [preferences?.selectedServiceIds]);
   
   // Get year range from preferences with null checks
   const startYear = preferences?.yearRange?.startYear;
@@ -23,7 +33,15 @@ export const useRecommendations = (
   
   // Fetch movie recommendations
   const moviesQuery = useQuery({
-    queryKey: ['popularMovies', page, watchProvidersParam, genreId, startYear, endYear, sortConfig],
+    queryKey: ['movies', 'recommendations', {
+      page,
+      watchProviders: watchProvidersParam,
+      genreId,
+      startYear,
+      endYear,
+      sortOption: sortConfig?.option,
+      sortDirection: sortConfig?.direction
+    }],
     queryFn: async () => {
       const params: any = {};
       
@@ -39,6 +57,17 @@ export const useRecommendations = (
         params.sort_by = `${sortBy}.${sortConfig.direction}`;
       }
       
+      // Log watch providers parameter for debugging
+      if (watchProvidersParam) {
+        console.log(`Watch providers for movies API call: ${watchProvidersParam}`);
+        console.log('Providers array:', JSON.stringify(preferences?.selectedServiceIds));
+        
+        // Check specifically for Amazon Prime
+        if (preferences?.selectedServiceIds?.includes(119)) {
+          console.log('Confirming Amazon Prime is included in API call');
+        }
+      }
+      
       console.log('Movie API params:', params);
       
       return tmdbService.getPopularMovies(
@@ -50,11 +79,20 @@ export const useRecommendations = (
       );
     },
     enabled: (mediaType === 'movie' || mediaType === 'both') && !preferencesLoading,
+    staleTime: 60 * 1000, // 1 minute
   });
 
   // Fetch TV show recommendations
   const tvShowsQuery = useQuery({
-    queryKey: ['popularTVShows', page, watchProvidersParam, genreId, startYear, endYear, sortConfig],
+    queryKey: ['tv', 'recommendations', {
+      page,
+      watchProviders: watchProvidersParam,
+      genreId,
+      startYear,
+      endYear,
+      sortOption: sortConfig?.option,
+      sortDirection: sortConfig?.direction
+    }],
     queryFn: async () => {
       const params: any = {};
       
@@ -81,18 +119,15 @@ export const useRecommendations = (
       );
     },
     enabled: (mediaType === 'tv' || mediaType === 'both') && !preferencesLoading,
+    staleTime: 60 * 1000, // 1 minute
   });
 
-  // Force refetch when genre changes
+  // Force refetch when parameters change
   useEffect(() => {
-    console.log('Genre changed to:', genreId);
-    if (mediaType === 'movie' || mediaType === 'both') {
-      moviesQuery.refetch();
-    }
-    if (mediaType === 'tv' || mediaType === 'both') {
-      tvShowsQuery.refetch();
-    }
-  }, [genreId, mediaType, moviesQuery, tvShowsQuery]);
+    console.log('Parameters changed, invalidating queries');
+    queryClient.invalidateQueries({ queryKey: ['movies', 'recommendations'] });
+    queryClient.invalidateQueries({ queryKey: ['tv', 'recommendations'] });
+  }, [watchProvidersParam, genreId, startYear, endYear, sortConfig, queryClient]);
 
   // Combine results from both queries when both are enabled
   const combineResults = (): MediaItem[] => {
@@ -164,14 +199,22 @@ export const useRecommendations = (
 
   // Function to refetch data
   const refetch = () => {
-    console.log('Refetching recommendations with:', {
+    console.log('Manually refetching recommendations with:', {
       mediaType,
       genreId,
       page,
-      watchProvidersParam,
-      sortConfig
+      watchProvidersCount: watchProvidersParam ? watchProvidersParam.split('|').length : 0,
+      watchProvidersValue: watchProvidersParam,
+      yearRange: `${startYear || 'none'}-${endYear || 'none'}`,
+      sortOption: sortConfig?.option || 'default',
+      sortDirection: sortConfig?.direction || 'default'
     });
     
+    // Force invalidate caches first
+    queryClient.invalidateQueries({ queryKey: ['movies', 'recommendations'] });
+    queryClient.invalidateQueries({ queryKey: ['tv', 'recommendations'] });
+    
+    // Then refetch the data
     if (mediaType === 'movie' || mediaType === 'both') {
       console.log('Refetching movies data');
       moviesQuery.refetch();
@@ -183,17 +226,21 @@ export const useRecommendations = (
   };
 
   // Log the current state for debugging
-  console.log('useRecommendations state:', {
-    mediaType,
-    genreId,
-    page,
-    isLoading,
-    hasMovieData: !!moviesQuery.data,
-    hasTVData: !!tvShowsQuery.data,
-    movieResults: moviesQuery.data?.results?.length || 0,
-    tvResults: tvShowsQuery.data?.results?.length || 0,
-    combinedResults: combineResults().length
-  });
+  useEffect(() => {
+    console.log('useRecommendations rendered with:', {
+      mediaType,
+      genreId,
+      page,
+      isLoading,
+      watchProvidersCount: watchProvidersParam ? watchProvidersParam.split('|').length : 0,
+      yearRange: `${startYear || 'none'}-${endYear || 'none'}`,
+      hasMovieData: !!moviesQuery.data,
+      hasTVData: !!tvShowsQuery.data,
+      movieResults: moviesQuery.data?.results?.length || 0,
+      tvResults: tvShowsQuery.data?.results?.length || 0,
+      combinedResults: combineResults().length
+    });
+  }, [mediaType, genreId, page, watchProvidersParam, startYear, endYear, isLoading, moviesQuery.data, tvShowsQuery.data]);
 
   return {
     recommendations: combineResults(),
